@@ -17,18 +17,18 @@ const initialTasks: Task[] = [
   { id: 5, title: "Go to the gym", completed: true, category: "Personal", dueDate: "Today" },
 ];
 
-const categories = [
-  { name: "All Tasks", icon: ListTodo, count: 5 },
-  { name: "Today", icon: Calendar, count: 4 },
-  { name: "Work", icon: Home, count: 3 },
-  { name: "Personal", icon: User, count: 2 },
-];
-
 export const Tasks = (): JSX.Element => {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [newTask, setNewTask] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Tasks");
   const [searchQuery, setSearchQuery] = useState("");
+
+  const categories = [
+    { name: "All Tasks", icon: ListTodo, count: tasks.length },
+    { name: "Today", icon: Calendar, count: tasks.filter(t => t.dueDate === "Today").length },
+    { name: "Work", icon: Home, count: tasks.filter(t => t.category === "Work").length },
+    { name: "Personal", icon: User, count: tasks.filter(t => t.category === "Personal").length },
+  ];
 
   const handleAddTask = (e: React.FormEvent) => {
     e.preventDefault();
