@@ -1,4 +1,4 @@
-import { CheckSquare, Settings, HelpCircle } from "lucide-react";
+import { CheckSquare, Settings, HelpCircle, Calendar } from "lucide-react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -130,12 +130,15 @@ export const AddTask = (): JSX.Element => {
                         Date
                       </FormLabel>
                       <FormControl>
-                        <Input
-                          type="date"
-                          className="h-11 px-4 rounded-lg border border-gray-200 font-['Montserrat',sans-serif] text-sm text-[#212427] focus:border-[#ff6767] focus:ring-[#ff6767] [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                          data-testid="input-task-date"
-                          {...field}
-                        />
+                        <div className="relative w-full">
+                          <Input
+                            type="date"
+                            className="h-11 w-full px-4 pr-10 rounded-lg border border-gray-200 font-['Montserrat',sans-serif] text-sm text-[#212427] focus:border-[#ff6767] focus:ring-[#ff6767] [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:right-0 [&::-webkit-calendar-picker-indicator]:w-10 [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                            data-testid="input-task-date"
+                            {...field}
+                          />
+                          <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                        </div>
                       </FormControl>
                       <FormMessage className="font-['Montserrat',sans-serif] text-xs" />
                     </FormItem>
