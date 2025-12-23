@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Plus, Calendar, CheckCircle2, Circle, Trash2, Edit2, Search, Bell, User, Home, ListTodo, Settings, LogOut } from "lucide-react";
+import { Link } from "wouter";
 
 interface Task {
   id: number;
@@ -146,22 +147,31 @@ export const Tasks = (): JSX.Element => {
             />
           </div>
 
-          <form onSubmit={handleAddTask} className="flex gap-3 mb-8">
+          <div className="flex gap-3 mb-8">
             <input
               type="text"
               value={newTask}
               onChange={(e) => setNewTask(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleAddTask(e);
+                }
+              }}
               placeholder="Add a new task..."
               className="flex-1 h-[56px] px-6 rounded-xl bg-white font-['Montserrat',sans-serif] font-medium text-[16px] text-[#212427] placeholder:text-[#999] focus:outline-none focus:ring-2 focus:ring-white/50 shadow-lg"
+              data-testid="input-quick-add-task"
             />
-            <button
-              type="submit"
-              className="h-[56px] px-6 bg-[#ff9090] hover:bg-[#ff7070] rounded-xl font-['Montserrat',sans-serif] font-medium text-white flex items-center gap-2 transition-colors shadow-lg"
-            >
-              <Plus className="w-5 h-5" />
-              Add Task
-            </button>
-          </form>
+            <Link href="/add-task">
+              <button
+                type="button"
+                className="h-[56px] px-6 bg-[#ff9090] hover:bg-[#ff7070] rounded-xl font-['Montserrat',sans-serif] font-medium text-white flex items-center gap-2 transition-colors shadow-lg"
+                data-testid="button-add-task"
+              >
+                <Plus className="w-5 h-5" />
+                Add Task
+              </button>
+            </Link>
+          </div>
 
           <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
             {filteredTasks.length === 0 ? (
