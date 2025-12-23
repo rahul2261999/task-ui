@@ -1,4 +1,4 @@
-import { Calendar, LayoutDashboard, AlertCircle, CheckSquare, List, Settings, HelpCircle } from "lucide-react";
+import { CheckSquare, Settings, HelpCircle } from "lucide-react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -130,15 +130,12 @@ export const AddTask = (): JSX.Element => {
                         Date
                       </FormLabel>
                       <FormControl>
-                        <div className="relative">
-                          <Input
-                            type="date"
-                            className="h-11 px-4 pr-10 rounded-lg border border-gray-200 font-['Montserrat',sans-serif] text-sm text-[#212427] focus:border-[#ff6767] focus:ring-[#ff6767]"
-                            data-testid="input-task-date"
-                            {...field}
-                          />
-                          <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                        </div>
+                        <Input
+                          type="date"
+                          className="h-11 px-4 rounded-lg border border-gray-200 font-['Montserrat',sans-serif] text-sm text-[#212427] focus:border-[#ff6767] focus:ring-[#ff6767]"
+                          data-testid="input-task-date"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage className="font-['Montserrat',sans-serif] text-xs" />
                     </FormItem>

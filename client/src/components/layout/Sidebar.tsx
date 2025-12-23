@@ -28,6 +28,10 @@ export function Sidebar({ items, footerItems = [], showLogout = true }: SidebarP
 
   const isActive = (href?: string) => {
     if (!href) return false;
+    // Match exact path or any subpath under /tasks
+    if (href === "/tasks") {
+      return location === "/tasks" || location.startsWith("/tasks/");
+    }
     return location === href;
   };
 
