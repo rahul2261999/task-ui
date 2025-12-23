@@ -1,33 +1,21 @@
-import { Plus, Calendar, CheckCircle2, Circle, Trash2, Edit2, Search, Bell, User, Home, ListTodo, Settings, LogOut, KeyRound, UserCog } from "lucide-react";
-import { Link, useLocation } from "wouter";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Plus, CheckCircle2, Circle, Trash2, Edit2, Search, ListTodo, LayoutDashboard, AlertCircle, CheckSquare, List, Settings, HelpCircle } from "lucide-react";
+import { Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { todoApi } from "@/lib/api";
-import { useAuth } from "@/lib/auth";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Todo, TodoStatus } from "@shared/api-types";
 import { useState } from "react";
+import { AppLayout, type SidebarItem } from "@/components/layout";
 
 export const Tasks = (): JSX.Element => {
-  const { user, logout } = useAuth();
-  const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const [selectedCategory, setSelectedCategory] = useState("All Tasks");
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: todosResponse, isLoading, error, isError } = useQuery({
     queryKey: ["/todo/list"],
     queryFn: () => todoApi.list(),
   });
-
-  console.log("todosResponse", todosResponse, "error", error, "isLoading", isLoading);
 
   const tasks = todosResponse?.data || [];
 
@@ -64,11 +52,6 @@ export const Tasks = (): JSX.Element => {
     },
   });
 
-  const handleLogout = () => {
-    logout();
-    setLocation("/login");
-  };
-
   const toggleTask = (task: Todo) => {
     const newStatus: TodoStatus = task.status === "completed" ? "pending" : "completed";
     updateMutation.mutate({ id: task.id, status: newStatus });
@@ -78,178 +61,62 @@ export const Tasks = (): JSX.Element => {
     deleteMutation.mutate(id);
   };
 
-  const categories = [
-    { name: "All Tasks", icon: ListTodo, count: tasks.length },
-    { name: "Today", icon: Calendar, count: tasks.filter((t) => isToday(t.due_date)).length },
-    { name: "In Progress", icon: Home, count: tasks.filter((t) => t.status === "inprogress").length },
-    { name: "Completed", icon: User, count: tasks.filter((t) => t.status === "completed").length },
-  ];
-
-  const filteredTasks = tasks.filter((task) => {
-    let matchesCategory = true;
-    if (selectedCategory === "Today") {
-      matchesCategory = isToday(task.due_date);
-    } else if (selectedCategory === "In Progress") {
-      matchesCategory = task.status === "inprogress";
-    } else if (selectedCategory === "Completed") {
-      matchesCategory = task.status === "completed";
-    }
-    const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const filteredTasks = tasks.filter((task) =>
+    task.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const completedCount = tasks.filter((t) => t.status === "completed").length;
   const totalCount = tasks.length;
 
+  const sidebarItems: SidebarItem[] = [
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/tasks" },
+    { id: "vital-task", label: "Vital Task", icon: AlertCircle, href: "/tasks" },
+    { id: "my-task", label: "My Task", icon: CheckSquare, href: "/tasks" },
+    { id: "task-categories", label: "Task Categories", icon: List, href: "/tasks" },
+  ];
+
+  const sidebarFooterItems: SidebarItem[] = [
+    { id: "settings", label: "Settings", icon: Settings, href: "/account-info" },
+    { id: "help", label: "Help", icon: HelpCircle, href: "/tasks" },
+  ];
+
   return (
-    <div className="min-h-screen w-full bg-[#ff6767] flex">
-      <aside className="w-[280px] bg-white min-h-screen flex flex-col shadow-lg">
-        <div className="p-6 border-b border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-[#ff9090] flex items-center justify-center">
-              <User className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h2 className="font-['Montserrat',sans-serif] font-bold text-[#212427] text-lg" data-testid="text-user-name">
-                {user?.name || "User"}
-              </h2>
-              <p className="font-['Montserrat',sans-serif] text-sm text-[#999]" data-testid="text-user-email">
-                {user?.email || ""}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <nav className="flex-1 p-4">
-          <ul className="space-y-2">
-            {categories.map((cat) => (
-              <li key={cat.name}>
-                <button
-                  onClick={() => setSelectedCategory(cat.name)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg font-['Montserrat',sans-serif] font-medium text-[15px] transition-colors ${
-                    selectedCategory === cat.name
-                      ? "bg-[#ff6767] text-white"
-                      : "text-[#212427] hover:bg-[#fff5f5]"
-                  }`}
-                  data-testid={`button-category-${cat.name.toLowerCase().replace(" ", "-")}`}
-                >
-                  <cat.icon className="w-5 h-5" />
-                  <span className="flex-1 text-left">{cat.name}</span>
-                  <span className={`text-sm ${selectedCategory === cat.name ? "text-white/80" : "text-[#999]"}`}>
-                    {cat.count}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <div className="p-4 border-t border-gray-100">
-          <Link href="/account-info">
-            <button
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-['Montserrat',sans-serif] font-medium text-[15px] text-[#212427] hover:bg-[#fff5f5] transition-colors"
-              data-testid="button-settings"
-            >
-              <Settings className="w-5 h-5" />
-              <span>Settings</span>
-            </button>
-          </Link>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-['Montserrat',sans-serif] font-medium text-[15px] text-[#ff6767] hover:bg-[#fff5f5] transition-colors"
-            data-testid="button-logout"
-          >
-            <LogOut className="w-5 h-5" />
-            <span>Logout</span>
-          </button>
-        </div>
-      </aside>
-
-      <main className="flex-1 p-8">
+    <AppLayout
+      sidebarItems={sidebarItems}
+      sidebarFooterItems={sidebarFooterItems}
+      showSearch={true}
+      searchValue={searchQuery}
+      onSearchChange={setSearchQuery}
+      searchPlaceholder="Search your task here..."
+    >
+      <div className="p-8">
         <div className="max-w-4xl mx-auto">
           <header className="flex items-center justify-between gap-4 mb-8 flex-wrap">
             <div>
-              <h1 className="font-['Montserrat',sans-serif] font-bold text-white text-[32px]">
-                {selectedCategory}
+              <h1 className="font-['Montserrat',sans-serif] font-bold text-[#212427] text-[28px]">
+                All Tasks
               </h1>
-              <p className="font-['Montserrat',sans-serif] text-white/80 mt-1">
+              <p className="font-['Montserrat',sans-serif] text-gray-500 mt-1">
                 {completedCount} of {totalCount} tasks completed
               </p>
             </div>
-            <div className="flex items-center gap-4">
-              <button className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors">
-                <Bell className="w-5 h-5 text-white" />
-              </button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className="w-10 h-10 rounded-full bg-white flex items-center justify-center hover:ring-2 hover:ring-white/50 transition-all"
-                    data-testid="button-profile-menu"
-                  >
-                    <User className="w-5 h-5 text-[#ff6767]" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem
-                    onClick={() => setLocation("/account-info")}
-                    className="font-['Montserrat',sans-serif] cursor-pointer"
-                    data-testid="menu-account-info"
-                  >
-                    <UserCog className="w-4 h-4 mr-2" />
-                    Account Info
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => setLocation("/change-password")}
-                    className="font-['Montserrat',sans-serif] cursor-pointer"
-                    data-testid="menu-change-password"
-                  >
-                    <KeyRound className="w-4 h-4 mr-2" />
-                    Change Password
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={handleLogout}
-                    className="font-['Montserrat',sans-serif] text-[#ff6767] cursor-pointer"
-                    data-testid="menu-logout"
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </header>
-
-          <div className="relative mb-6">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#999]" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search tasks..."
-              className="w-full h-[56px] pl-12 pr-4 rounded-xl bg-white font-['Montserrat',sans-serif] font-medium text-[16px] text-[#212427] placeholder:text-[#999] focus:outline-none focus:ring-2 focus:ring-white/50 shadow-lg"
-              data-testid="input-search"
-            />
-          </div>
-
-          <div className="flex gap-3 mb-8">
-            <Link href="/add-task" className="flex-shrink-0">
+            <Link href="/add-task">
               <button
                 type="button"
-                className="h-[56px] px-6 bg-[#ff9090] hover:bg-[#ff7070] rounded-xl font-['Montserrat',sans-serif] font-medium text-white flex items-center gap-2 transition-colors shadow-lg"
+                className="h-[48px] px-6 bg-[#ff6767] hover:bg-[#ff5252] rounded-lg font-['Montserrat',sans-serif] font-semibold text-white flex items-center gap-2 transition-colors"
                 data-testid="button-add-task"
               >
                 <Plus className="w-5 h-5" />
                 Add Task
               </button>
             </Link>
-          </div>
+          </header>
 
-          <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
             {isLoading ? (
               <div className="p-12 text-center">
                 <div className="animate-spin w-10 h-10 border-4 border-[#ff6767] border-t-transparent rounded-full mx-auto mb-4" />
-                <p className="font-['Montserrat',sans-serif] text-[#999]">Loading tasks...</p>
+                <p className="font-['Montserrat',sans-serif] text-gray-500">Loading tasks...</p>
               </div>
             ) : isError ? (
               <div className="p-12 text-center">
@@ -259,7 +126,7 @@ export const Tasks = (): JSX.Element => {
                 <h3 className="font-['Montserrat',sans-serif] font-bold text-[#212427] text-xl mb-2">
                   Failed to load tasks
                 </h3>
-                <p className="font-['Montserrat',sans-serif] text-[#999]">
+                <p className="font-['Montserrat',sans-serif] text-gray-500">
                   {error instanceof Error ? error.message : "Unknown error occurred"}
                 </p>
               </div>
@@ -271,7 +138,7 @@ export const Tasks = (): JSX.Element => {
                 <h3 className="font-['Montserrat',sans-serif] font-bold text-[#212427] text-xl mb-2">
                   No tasks found
                 </h3>
-                <p className="font-['Montserrat',sans-serif] text-[#999]">
+                <p className="font-['Montserrat',sans-serif] text-gray-500">
                   Add a new task to get started!
                 </p>
               </div>
@@ -280,7 +147,7 @@ export const Tasks = (): JSX.Element => {
                 {filteredTasks.map((task) => (
                   <li
                     key={task.id}
-                    className="flex items-center gap-4 p-5 hover:bg-[#fafafa] transition-colors group"
+                    className="flex items-center gap-4 p-5 hover:bg-gray-50 transition-colors group"
                     data-testid={`task-item-${task.id}`}
                   >
                     <button
@@ -291,13 +158,13 @@ export const Tasks = (): JSX.Element => {
                       {task.status === "completed" ? (
                         <CheckCircle2 className="w-6 h-6 text-[#ff6767]" />
                       ) : (
-                        <Circle className="w-6 h-6 text-[#ccc] hover:text-[#ff9090] transition-colors" />
+                        <Circle className="w-6 h-6 text-gray-300 hover:text-[#ff9090] transition-colors" />
                       )}
                     </button>
                     <div className="flex-1 min-w-0">
                       <p
                         className={`font-['Montserrat',sans-serif] font-medium text-[16px] truncate ${
-                          task.status === "completed" ? "text-[#999] line-through" : "text-[#212427]"
+                          task.status === "completed" ? "text-gray-400 line-through" : "text-[#212427]"
                         }`}
                         data-testid={`text-task-title-${task.id}`}
                       >
@@ -305,7 +172,7 @@ export const Tasks = (): JSX.Element => {
                       </p>
                       <div className="flex items-center gap-3 mt-1 flex-wrap">
                         <span
-                          className={`font-['Montserrat',sans-serif] text-sm px-2 py-0.5 rounded ${
+                          className={`font-['Montserrat',sans-serif] text-xs px-2 py-0.5 rounded ${
                             task.status === "completed"
                               ? "bg-green-100 text-green-700"
                               : task.status === "inprogress"
@@ -317,24 +184,24 @@ export const Tasks = (): JSX.Element => {
                         </span>
                         {task.due_date && (
                           <>
-                            <span className="text-[#ccc]">|</span>
-                            <span className="font-['Montserrat',sans-serif] text-sm text-[#ff9090]">
+                            <span className="text-gray-300">|</span>
+                            <span className="font-['Montserrat',sans-serif] text-sm text-[#ff6767]">
                               {formatDate(task.due_date)}
                             </span>
                           </>
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-2 invisible group-hover:visible">
                       <button
-                        className="w-9 h-9 rounded-lg hover:bg-[#fff5f5] flex items-center justify-center transition-colors"
+                        className="w-9 h-9 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors"
                         data-testid={`button-edit-${task.id}`}
                       >
-                        <Edit2 className="w-4 h-4 text-[#999]" />
+                        <Edit2 className="w-4 h-4 text-gray-400" />
                       </button>
                       <button
                         onClick={() => deleteTask(task.id)}
-                        className="w-9 h-9 rounded-lg hover:bg-[#fff5f5] flex items-center justify-center transition-colors"
+                        className="w-9 h-9 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors"
                         data-testid={`button-delete-${task.id}`}
                       >
                         <Trash2 className="w-4 h-4 text-[#ff6767]" />
@@ -346,27 +213,16 @@ export const Tasks = (): JSX.Element => {
             )}
           </div>
 
-          <div className="mt-6 flex items-center justify-between gap-4 flex-wrap">
-            <p className="font-['Montserrat',sans-serif] text-white/80">
+          <div className="mt-6">
+            <p className="font-['Montserrat',sans-serif] text-gray-500">
               {filteredTasks.filter((t) => t.status !== "completed").length} tasks remaining
             </p>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </AppLayout>
   );
 };
-
-function isToday(dateString: string | null): boolean {
-  if (!dateString) return false;
-  const date = new Date(dateString);
-  const today = new Date();
-  return (
-    date.getDate() === today.getDate() &&
-    date.getMonth() === today.getMonth() &&
-    date.getFullYear() === today.getFullYear()
-  );
-}
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
@@ -374,7 +230,13 @@ function formatDate(dateString: string): string {
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  if (isToday(dateString)) return "Today";
+  if (
+    date.getDate() === today.getDate() &&
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear()
+  ) {
+    return "Today";
+  }
   if (
     date.getDate() === tomorrow.getDate() &&
     date.getMonth() === tomorrow.getMonth() &&
