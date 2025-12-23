@@ -41,13 +41,13 @@ function Router() {
       <Route path="/tasks">
         <ProtectedRoute component={Tasks} />
       </Route>
-      <Route path="/add-task">
+      <Route path="/tasks/add-task">
         <ProtectedRoute component={AddTask} />
       </Route>
-      <Route path="/account-info">
+      <Route path="/tasks/account-info">
         <ProtectedRoute component={AccountInfo} />
       </Route>
-      <Route path="/change-password">
+      <Route path="/tasks/change-password">
         <ProtectedRoute component={ChangePassword} />
       </Route>
       <Route component={NotFound} />

@@ -73,7 +73,7 @@ export const Tasks = (): JSX.Element => {
   ];
 
   const sidebarFooterItems: SidebarItem[] = [
-    { id: "settings", label: "Settings", icon: Settings, href: "/account-info" },
+    { id: "settings", label: "Settings", icon: Settings, href: "/tasks/account-info" },
     { id: "help", label: "Help", icon: HelpCircle, href: "/tasks" },
   ];
 
@@ -97,7 +97,7 @@ export const Tasks = (): JSX.Element => {
                 {completedCount} of {totalCount} tasks completed
               </p>
             </div>
-            <Link href="/add-task">
+            <Link href="/tasks/add-task">
               <button
                 type="button"
                 className="h-[48px] px-6 bg-[#ff6767] hover:bg-[#ff5252] rounded-lg font-['Montserrat',sans-serif] font-semibold text-white flex items-center gap-2 transition-colors"

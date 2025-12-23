@@ -114,7 +114,7 @@ export function TopBar({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem
-              onClick={() => setLocation("/account-info")}
+              onClick={() => setLocation("/tasks/account-info")}
               className="font-['Montserrat',sans-serif] cursor-pointer"
               data-testid="menu-account-info"
             >
@@ -122,7 +122,7 @@ export function TopBar({
               Account Info
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => setLocation("/change-password")}
+              onClick={() => setLocation("/tasks/change-password")}
               className="font-['Montserrat',sans-serif] cursor-pointer"
               data-testid="menu-change-password"
             >
