@@ -26,17 +26,13 @@ export function Sidebar({ items, footerItems = [], showLogout = true }: SidebarP
     setLocation("/login");
   };
 
-  const isActive = (href?: string, id?: string) => {
+  const isActive = (href?: string) => {
     if (!href) return false;
-    // Only mark Dashboard as active on /tasks page
-    if (href === "/tasks" && location === "/tasks") {
-      return id === "dashboard";
-    }
     return location === href;
   };
 
   const renderMenuItem = (item: SidebarItem) => {
-    const active = isActive(item.href, item.id);
+    const active = isActive(item.href);
     const baseClasses = `w-full flex items-center gap-3 px-4 py-3 rounded-lg font-['Montserrat',sans-serif] font-medium text-sm transition-colors`;
     const activeClasses = active
       ? "bg-white text-[#ff6767]"

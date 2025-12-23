@@ -68,10 +68,7 @@ export const AddTask = (): JSX.Element => {
   };
 
   const sidebarItems: SidebarItem[] = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/tasks" },
-    { id: "vital-task", label: "Vital Task", icon: AlertCircle, href: "/tasks" },
     { id: "my-task", label: "My Task", icon: CheckSquare, href: "/tasks" },
-    { id: "task-categories", label: "Task Categories", icon: List, href: "/tasks" },
   ];
 
   const sidebarFooterItems: SidebarItem[] = [
