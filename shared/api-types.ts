@@ -56,14 +56,40 @@ export const signinSchema = z.object({
 export const createTodoSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
-  due_date: z.string().optional(),
+  due_date: z
+    .string()
+    .optional()
+    .refine(
+      (value) => {
+        if (!value) return true;
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return false;
+        const now = new Date();
+        now.setSeconds(0, 0); // validate only up to minutes
+        return d.getTime() >= now.getTime();
+      },
+      { message: "Date & time cannot be in the past" },
+    ),
 });
 
 export const updateTodoSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
   status: z.enum(["pending", "inprogress", "completed", "cancelled"]).optional(),
-  due_date: z.string().optional(),
+  due_date: z
+    .string()
+    .optional()
+    .refine(
+      (value) => {
+        if (!value) return true;
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return false;
+        const now = new Date();
+        now.setSeconds(0, 0); // validate only up to minutes
+        return d.getTime() >= now.getTime();
+      },
+      { message: "Date & time cannot be in the past" },
+    ),
 });
 
 export const updateProfileSchema = z.object({

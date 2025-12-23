@@ -1,0 +1,173 @@
+---
+alwaysApply: true
+---
+# React App Code Structure Rules
+
+These rules define how React application code MUST be structured.
+The goal is scalability, clear ownership, and safe refactoring.
+
+---
+
+## 1. High-Level Structure (Mandatory)
+
+All React apps MUST follow this layout:
+
+src/
+├── app/          # App bootstrap only (routing, providers)
+├── features/     # Business domains (primary structure)
+├── shared/       # Reusable, feature-agnostic code
+├── styles/
+├── config/
+└── main.tsx
+
+---
+
+## 2. Feature-First Organization (Strict)
+
+Code MUST be grouped by business feature, not by type.
+
+❌ NOT ALLOWED
+components/
+hooks/
+services/
+utils/
+
+✅ REQUIRED
+features/<feature-name>/
+
+Each feature MUST be self-contained.
+
+---
+
+## 3. Feature Folder Rules
+
+Each feature MUST follow this structure (as needed):
+
+features/<feature-name>/
+├── components/
+├── hooks/
+├── api/
+├── types.ts
+├── utils.ts
+└── index.ts
+
+### Rules
+- A feature MUST NOT import from another feature directly
+- A feature MAY import from `shared`
+- All cross-feature access MUST go through `index.ts`
+
+---
+
+## 4. Public API Rule (index.ts)
+
+Each feature MUST expose a public API via `index.ts`.
+
+Example:
+export * from './components/FeatureComponent'
+export * from './hooks/useFeature'
+
+❌ Deep imports are NOT allowed:
+import X from '@/features/auth/components/X'
+
+✅ Allowed:
+import { X } from '@/features/auth'
+
+---
+
+## 5. Shared Folder Rules (Strict Boundary)
+
+shared/ contains ONLY generic, reusable code.
+
+shared/
+├── components/
+├── hooks/
+├── utils/
+├── api/
+└── types/
+
+Rules:
+- `shared` MUST NOT import from `features`
+- `shared` MUST NOT contain business logic
+- `shared` components MUST be domain-agnostic
+
+---
+
+## 6. App Layer Rules
+
+app/ is ONLY for glue code.
+
+Allowed:
+- Routing
+- Providers
+- Layout composition
+
+Not allowed:
+- Business logic
+- API calls
+- Feature-specific state
+
+---
+
+## 7. Component Responsibility Rules
+
+Components MUST:
+- Focus on rendering
+- Receive data via props or hooks
+
+Components MUST NOT:
+- Call APIs directly
+- Contain complex business logic
+
+Business logic MUST live in:
+- hooks/
+- api/
+- utils/
+
+---
+
+## 8. State Management Rules
+
+- Server state MUST use React Query / TanStack Query
+- Local UI state MUST stay inside components
+- Global state MUST be limited to:
+  - auth
+  - user
+  - theme
+  - app-level UI state
+
+Global stores MUST live in:
+shared/store/
+
+---
+
+## 9. Import Rules (Enforced)
+
+Absolute imports MUST be used.
+
+Allowed:
+import { Button } from '@/shared/components/Button'
+import { useAuth } from '@/features/auth'
+
+Not allowed:
+import Button from '../../../shared/components/Button'
+
+---
+
+## 11. Deletion Test (Architecture Check)
+
+A feature MUST be deletable without breaking unrelated features.
+
+If deleting a feature causes widespread breakage,
+the structure is incorrect.
+
+---
+
+## 12. Enforcement Priority
+
+Priority order:
+1. Feature boundaries
+2. Shared isolation
+3. Public APIs (index.ts)
+4. Absolute imports
+
+Violations MUST be fixed immediately.

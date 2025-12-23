@@ -4,6 +4,9 @@ import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 
 export default defineConfig({
+  // Vite's `root` is `client/`, but we keep `.env*` at the repo root.
+  // Setting `envDir` ensures `import.meta.env.VITE_*` picks up `/./.env`.
+  envDir: import.meta.dirname,
   plugins: [
     react(),
     runtimeErrorOverlay(),
@@ -28,7 +31,7 @@ export default defineConfig({
   },
   root: path.resolve(import.meta.dirname, "client"),
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist/public"),
+    outDir: path.resolve(import.meta.dirname, "dist"),
     emptyOutDir: true,
   },
   server: {
