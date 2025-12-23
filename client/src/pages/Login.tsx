@@ -8,8 +8,8 @@ import { authApi } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 
-const imgIstockphoto14838634472048X20482 = "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=2048&q=80";
-const imgAch31 = "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=600&q=80";
+const imgIstockphoto14838634472048X20482 = "https://www.figma.com/api/mcp/asset/7da48b20-cff0-444b-ae7b-a71cf21d0eb4";
+const imgAch31 = "https://www.figma.com/api/mcp/asset/1bd91f03-c155-40e0-8029-940921abaf6e";
 
 export const Login = (): JSX.Element => {
   const [, setLocation] = useLocation();
@@ -128,22 +128,12 @@ export const Login = (): JSX.Element => {
           </form>
         </div>
 
-        <div className="hidden lg:flex w-[613px] items-center justify-center p-8 bg-gradient-to-br from-[#fff5f5] to-[#ffe8e8]">
-          <div className="w-full h-full rounded-2xl bg-[#ff9090]/20 flex items-center justify-center">
-            <div className="text-center">
-              <div className="w-32 h-32 mx-auto mb-6 rounded-full bg-[#ff6767] flex items-center justify-center">
-                <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                </svg>
-              </div>
-              <h2 className="font-['Montserrat',sans-serif] font-bold text-[#212427] text-2xl mb-2">
-                Welcome Back
-              </h2>
-              <p className="font-['Montserrat',sans-serif] text-[#666] text-sm max-w-[280px]">
-                Sign in to manage your tasks and stay organized
-              </p>
-            </div>
-          </div>
+        <div className="hidden lg:flex w-[613px] items-center justify-center p-8">
+          <img
+            src={imgAch31}
+            alt="Illustration"
+            className="w-full h-auto max-h-[613px] object-contain"
+          />
         </div>
       </div>
     </div>

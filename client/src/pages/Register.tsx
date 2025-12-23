@@ -8,7 +8,8 @@ import { authApi } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
 
-const imgIstockphoto14838634472048X20481 = "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=2048&q=80";
+const imgR2 = "https://www.figma.com/api/mcp/asset/fc8082b0-f60b-4a8e-a125-2aec97ad6d33";
+const imgIstockphoto14838634472048X20481 = "https://www.figma.com/api/mcp/asset/4a95374f-4f73-41f4-95ba-09e70182e1e4";
 
 export const Register = (): JSX.Element => {
   const [, setLocation] = useLocation();
@@ -64,22 +65,12 @@ export const Register = (): JSX.Element => {
       />
       
       <div className="relative bg-white rounded-[10px] shadow-[124px_100px_45px_0px_rgba(0,0,0,0),80px_64px_41px_0px_rgba(0,0,0,0.01),45px_36px_34px_0px_rgba(0,0,0,0.02),20px_16px_26px_0px_rgba(0,0,0,0.03),5px_4px_14px_0px_rgba(0,0,0,0.04)] w-full max-w-[1236px] min-h-[700px] flex overflow-hidden">
-        <div className="hidden lg:flex w-[433px] items-center justify-center p-8 bg-gradient-to-br from-[#fff5f5] to-[#ffe8e8]">
-          <div className="w-full h-full rounded-2xl bg-[#ff9090]/20 flex items-center justify-center">
-            <div className="text-center">
-              <div className="w-32 h-32 mx-auto mb-6 rounded-full bg-[#ff6767] flex items-center justify-center">
-                <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                </svg>
-              </div>
-              <h2 className="font-['Montserrat',sans-serif] font-bold text-[#212427] text-2xl mb-2">
-                Join Us
-              </h2>
-              <p className="font-['Montserrat',sans-serif] text-[#666] text-sm max-w-[280px]">
-                Create an account and start organizing your tasks
-              </p>
-            </div>
-          </div>
+        <div className="hidden lg:flex w-[433px] items-center justify-center p-8">
+          <img
+            src={imgR2}
+            alt="Illustration"
+            className="w-full h-auto max-h-[652px] object-contain"
+          />
         </div>
 
         <div className="flex-1 flex flex-col justify-center px-8 lg:px-16 py-12">
