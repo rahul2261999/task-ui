@@ -3,7 +3,7 @@ import { Lock, Mail } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signinSchema, type SigninRequest } from "@/lib/api-types";
+import { signinSchema, type SigninRequest } from "@shared/api-types";
 import { authApi } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
@@ -44,12 +44,6 @@ export const Login = (): JSX.Element => {
           description: "You have successfully signed in.",
         });
         setLocation("/tasks");
-      } else if (response.error) {
-        toast({
-          title: "Sign in failed",
-          description: response.error,
-          variant: "destructive",
-        });
       }
     } catch (error) {
       toast({

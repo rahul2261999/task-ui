@@ -1,12 +1,13 @@
-import { ArrowLeft, Calendar } from "lucide-react";
+import { ArrowLeft, Calendar, Upload } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { createTodoSchema, type CreateTodoRequest } from "@/lib/api-types";
+import { createTodoSchema, type CreateTodoRequest } from "@shared/api-types";
 import { todoApi } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { queryClient } from "@/lib/queryClient";

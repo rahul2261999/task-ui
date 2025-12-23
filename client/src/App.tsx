@@ -1,10 +1,10 @@
-import { Switch, Route, Redirect } from "wouter";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { Switch, Route, useLocation, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider, useAuth } from "@/lib/auth";
 import NotFound from "@/pages/not-found";
+import { AuthProvider, useAuth } from "@/lib/auth";
 
 import { Login } from "@/pages/Login";
 import { Register } from "@/pages/Register";
@@ -13,6 +13,7 @@ import { AddTask } from "@/pages/AddTask";
 
 function ProtectedRoute({ component: Component }: { component: () => JSX.Element }) {
   const { isAuthenticated, isLoading } = useAuth();
+  const [, setLocation] = useLocation();
 
   if (isLoading) {
     return (

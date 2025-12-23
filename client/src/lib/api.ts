@@ -1,21 +1,25 @@
+import { getStoredToken } from "./auth";
 import type {
-  SigninRequest,
   SignupRequest,
-  AuthResponse,
-  Todo,
+  SigninRequest,
+  SignupResponse,
+  SigninResponse,
+  ListTodosResponse,
   CreateTodoRequest,
+  CreateTodoResponse,
   UpdateTodoRequest,
-  ApiResponse,
-} from "./api-types";
+  UpdateTodoResponse,
+  DeleteTodoResponse,
+  GetUserResponse,
+} from "@shared/api-types";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
-async function request<T>(
-  endpoint: string,
+async function fetchWithAuth(
+  url: string,
   options: RequestInit = {}
-): Promise<ApiResponse<T>> {
-  const token = localStorage.getItem("auth_token");
-
+): Promise<Response> {
+  const token = getStoredToken();
   const headers: HeadersInit = {
     "Content-Type": "application/json",
     ...options.headers,
@@ -25,55 +29,82 @@ async function request<T>(
     (headers as Record<string, string>)["Authorization"] = `Bearer ${token}`;
   }
 
-  try {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      headers,
-    });
+  const response = await fetch(`${API_BASE_URL}${url}`, {
+    ...options,
+    headers,
+  });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      return { error: data.message || "Request failed" };
-    }
-
-    return { data };
-  } catch (error) {
-    return { error: error instanceof Error ? error.message : "Network error" };
+  if (response.status === 401) {
+    localStorage.removeItem("todo_auth_token");
+    localStorage.removeItem("todo_auth_user");
+    window.location.href = "/login";
+    throw new Error("Unauthorized");
   }
+
+  return response;
+}
+
+async function handleResponse<T>(response: Response): Promise<T> {
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: response.statusText }));
+    throw new Error(error.message || `Error: ${response.status}`);
+  }
+  return response.json();
 }
 
 export const authApi = {
-  signin: (data: SigninRequest) =>
-    request<AuthResponse>("/auth/signin", {
+  signup: async (data: SignupRequest): Promise<SignupResponse> => {
+    const response = await fetch(`${API_BASE_URL}/auth/signup`, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
-    }),
+    });
+    return handleResponse<SignupResponse>(response);
+  },
 
-  signup: (data: SignupRequest) =>
-    request<AuthResponse>("/auth/signup", {
+  signin: async (data: SigninRequest): Promise<SigninResponse> => {
+    const response = await fetch(`${API_BASE_URL}/auth/signin`, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
-    }),
+    });
+    return handleResponse<SigninResponse>(response);
+  },
+};
+
+export const userApi = {
+  getProfile: async (): Promise<GetUserResponse> => {
+    const response = await fetchWithAuth("/user");
+    return handleResponse<GetUserResponse>(response);
+  },
 };
 
 export const todoApi = {
-  list: () => request<Todo[]>("/todo/list"),
+  list: async (): Promise<ListTodosResponse> => {
+    const response = await fetchWithAuth("/todo/list");
+    return handleResponse<ListTodosResponse>(response);
+  },
 
-  create: (data: CreateTodoRequest) =>
-    request<Todo>("/todo", {
+  create: async (data: CreateTodoRequest): Promise<CreateTodoResponse> => {
+    const response = await fetchWithAuth("/todo", {
       method: "POST",
       body: JSON.stringify(data),
-    }),
+    });
+    return handleResponse<CreateTodoResponse>(response);
+  },
 
-  update: (id: number, data: UpdateTodoRequest) =>
-    request<Todo>(`/todo/${id}`, {
+  update: async (id: number, data: UpdateTodoRequest): Promise<UpdateTodoResponse> => {
+    const response = await fetchWithAuth(`/todo/${id}`, {
       method: "PATCH",
       body: JSON.stringify(data),
-    }),
+    });
+    return handleResponse<UpdateTodoResponse>(response);
+  },
 
-  delete: (id: number) =>
-    request<void>(`/todo/${id}`, {
+  delete: async (id: number): Promise<DeleteTodoResponse> => {
+    const response = await fetchWithAuth(`/todo/${id}`, {
       method: "DELETE",
-    }),
+    });
+    return handleResponse<DeleteTodoResponse>(response);
+  },
 };
