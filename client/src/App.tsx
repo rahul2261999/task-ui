@@ -10,6 +10,8 @@ import { Login } from "@/pages/Login";
 import { Register } from "@/pages/Register";
 import { Tasks } from "@/pages/Tasks";
 import { AddTask } from "@/pages/AddTask";
+import { AccountInfo } from "@/pages/AccountInfo";
+import { ChangePassword } from "@/pages/ChangePassword";
 
 function ProtectedRoute({ component: Component }: { component: () => JSX.Element }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -41,6 +43,12 @@ function Router() {
       </Route>
       <Route path="/add-task">
         <ProtectedRoute component={AddTask} />
+      </Route>
+      <Route path="/account-info">
+        <ProtectedRoute component={AccountInfo} />
+      </Route>
+      <Route path="/change-password">
+        <ProtectedRoute component={ChangePassword} />
       </Route>
       <Route component={NotFound} />
     </Switch>

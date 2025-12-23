@@ -11,6 +11,10 @@ import type {
   UpdateTodoResponse,
   DeleteTodoResponse,
   GetUserResponse,
+  UpdateProfileRequest,
+  UpdateProfileResponse,
+  ChangePasswordRequest,
+  ChangePasswordResponse,
 } from "@shared/api-types";
 
 const API_BASE_URL =
@@ -82,6 +86,22 @@ export const userApi = {
   getProfile: async (): Promise<GetUserResponse> => {
     const response = await fetchWithAuth("/user");
     return handleResponse<GetUserResponse>(response);
+  },
+
+  updateProfile: async (data: UpdateProfileRequest): Promise<UpdateProfileResponse> => {
+    const response = await fetchWithAuth("/user/profile", {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    });
+    return handleResponse<UpdateProfileResponse>(response);
+  },
+
+  changePassword: async (data: ChangePasswordRequest): Promise<ChangePasswordResponse> => {
+    const response = await fetchWithAuth("/auth/change-password", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+    return handleResponse<ChangePasswordResponse>(response);
   },
 };
 

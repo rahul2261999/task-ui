@@ -66,10 +66,29 @@ export const updateTodoSchema = z.object({
   due_date: z.string().optional(),
 });
 
+export const updateProfileSchema = z.object({
+  first_name: z.string().min(1, "First name is required"),
+  last_name: z.string().min(1, "Last name is required"),
+  email: z.string().email("Invalid email address"),
+  contact_number: z.string().optional(),
+  position: z.string().optional(),
+});
+
+export const changePasswordSchema = z.object({
+  current_password: z.string().min(8, "Password must be at least 8 characters"),
+  new_password: z.string().min(8, "Password must be at least 8 characters"),
+  confirm_password: z.string().min(8, "Password must be at least 8 characters"),
+}).refine((data) => data.new_password === data.confirm_password, {
+  message: "Passwords don't match",
+  path: ["confirm_password"],
+});
+
 export type SignupRequest = z.infer<typeof signupSchema>;
 export type SigninRequest = z.infer<typeof signinSchema>;
 export type CreateTodoRequest = z.infer<typeof createTodoSchema>;
 export type UpdateTodoRequest = z.infer<typeof updateTodoSchema>;
+export type UpdateProfileRequest = z.infer<typeof updateProfileSchema>;
+export type ChangePasswordRequest = z.infer<typeof changePasswordSchema>;
 
 export type SignupResponse = ApiResponse<AuthPayload>;
 export type SigninResponse = ApiResponse<AuthPayload>;
@@ -79,3 +98,5 @@ export type CreateTodoResponse = ApiResponse<Todo>;
 export type GetTodoResponse = ApiResponse<Todo>;
 export type UpdateTodoResponse = ApiResponse<Todo>;
 export type DeleteTodoResponse = ApiResponse<null>;
+export type UpdateProfileResponse = ApiResponse<User>;
+export type ChangePasswordResponse = ApiResponse<null>;
