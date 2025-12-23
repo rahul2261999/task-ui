@@ -73,7 +73,7 @@ export const AddTask = (): JSX.Element => {
 
   const sidebarFooterItems: SidebarItem[] = [
     { id: "settings", label: "Settings", icon: Settings, href: "/tasks/account-info" },
-    { id: "help", label: "Help", icon: HelpCircle, href: "/tasks" },
+    { id: "help", label: "Help", icon: HelpCircle },
   ];
 
   return (
@@ -132,7 +132,7 @@ export const AddTask = (): JSX.Element => {
                       <FormControl>
                         <Input
                           type="date"
-                          className="h-11 px-4 rounded-lg border border-gray-200 font-['Montserrat',sans-serif] text-sm text-[#212427] focus:border-[#ff6767] focus:ring-[#ff6767]"
+                          className="h-11 px-4 rounded-lg border border-gray-200 font-['Montserrat',sans-serif] text-sm text-[#212427] focus:border-[#ff6767] focus:ring-[#ff6767] [&::-webkit-calendar-picker-indicator]:opacity-60 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                           data-testid="input-task-date"
                           {...field}
                         />

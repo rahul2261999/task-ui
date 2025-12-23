@@ -65,7 +65,7 @@ export const ChangePassword = (): JSX.Element => {
 
   const sidebarFooterItems: SidebarItem[] = [
     { id: "settings", label: "Settings", icon: Settings, href: "/tasks/account-info" },
-    { id: "help", label: "Help", icon: HelpCircle, href: "/tasks" },
+    { id: "help", label: "Help", icon: HelpCircle },
   ];
 
   return (

@@ -26,17 +26,21 @@ export function Sidebar({ items, footerItems = [], showLogout = true }: SidebarP
     setLocation("/login");
   };
 
-  const isActive = (href?: string) => {
+  const isActive = (href?: string, id?: string) => {
     if (!href) return false;
-    // Match exact path or any subpath under /tasks
-    if (href === "/tasks") {
-      return location === "/tasks" || location.startsWith("/tasks/");
+    // Only "my-task" should be active for /tasks routes
+    if (id === "my-task" && (location === "/tasks" || location.startsWith("/tasks/"))) {
+      return true;
     }
-    return location === href;
+    // For other items, use exact match only
+    if (id !== "my-task") {
+      return location === href;
+    }
+    return false;
   };
 
   const renderMenuItem = (item: SidebarItem) => {
-    const active = isActive(item.href);
+    const active = isActive(item.href, item.id);
     const baseClasses = `w-full flex items-center gap-3 px-4 py-3 rounded-lg font-['Montserrat',sans-serif] font-medium text-sm transition-colors`;
     const activeClasses = active
       ? "bg-white text-[#ff6767]"
