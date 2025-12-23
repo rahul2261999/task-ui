@@ -5,7 +5,7 @@ import { todoApi } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { Todo, TodoStatus } from "@shared/api-types";
+import type { Todo, TodoStatus } from "@/lib/api-types";
 import { useState } from "react";
 
 export const Tasks = (): JSX.Element => {

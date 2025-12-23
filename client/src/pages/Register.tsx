@@ -3,7 +3,7 @@ import { Mail, Lock, User } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signupSchema, type SignupRequest } from "@shared/api-types";
+import { signupSchema, type SignupRequest } from "@/lib/api-types";
 import { authApi } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
@@ -45,6 +45,12 @@ export const Register = (): JSX.Element => {
           description: "Welcome to your new task manager.",
         });
         setLocation("/tasks");
+      } else if (response.error) {
+        toast({
+          title: "Registration failed",
+          description: response.error,
+          variant: "destructive",
+        });
       }
     } catch (error) {
       toast({
