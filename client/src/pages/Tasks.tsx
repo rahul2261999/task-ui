@@ -15,10 +15,12 @@ export const Tasks = (): JSX.Element => {
   const [selectedCategory, setSelectedCategory] = useState("All Tasks");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: todosResponse, isLoading } = useQuery({
+  const { data: todosResponse, isLoading, error, isError } = useQuery({
     queryKey: ["/todo/list"],
     queryFn: () => todoApi.list(),
   });
+
+  console.log("todosResponse", todosResponse, "error", error, "isLoading", isLoading);
 
   const tasks = todosResponse?.data || [];
 
@@ -202,6 +204,18 @@ export const Tasks = (): JSX.Element => {
               <div className="p-12 text-center">
                 <div className="animate-spin w-10 h-10 border-4 border-[#ff6767] border-t-transparent rounded-full mx-auto mb-4" />
                 <p className="font-['Montserrat',sans-serif] text-[#999]">Loading tasks...</p>
+              </div>
+            ) : isError ? (
+              <div className="p-12 text-center">
+                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-red-100 flex items-center justify-center">
+                  <ListTodo className="w-10 h-10 text-red-500" />
+                </div>
+                <h3 className="font-['Montserrat',sans-serif] font-bold text-[#212427] text-xl mb-2">
+                  Failed to load tasks
+                </h3>
+                <p className="font-['Montserrat',sans-serif] text-[#999]">
+                  {error instanceof Error ? error.message : "Unknown error occurred"}
+                </p>
               </div>
             ) : filteredTasks.length === 0 ? (
               <div className="p-12 text-center">
