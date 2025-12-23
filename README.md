@@ -62,10 +62,13 @@ Vite will print the local URL (typically `http://localhost:5173`).
 
 ## Docs
 
-See `docs/README.md` for deeper docs:
+See:
 
-- Setup + environment config
-- Architecture and folder boundaries
-- Common troubleshooting
+- **Docs index**: [`docs/README.md`](docs/README.md)
+- **Setup**: [`docs/SETUP.md`](docs/SETUP.md)
+- **Environment**: [`docs/ENVIRONMENT.md`](docs/ENVIRONMENT.md)
+- **Architecture**: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+- **API contract**: [`docs/API_CONTRACT.md`](docs/API_CONTRACT.md)
+- **Troubleshooting**: [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md)
 
 
