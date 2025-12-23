@@ -13,11 +13,15 @@ import type {
   GetUserResponse,
 } from "@shared/api-types";
 
-const API_BASE_URL = import.meta.env.VITE_TASK_APP_BASE_URL || "http://localhost:8080";
+const API_BASE_URL =
+  import.meta.env.VITE_TASK_APP_BASE_URL ||
+  "https://906db7c7fc2a.ngrok-free.app";
+
+console.log("API_BASE_URL", API_BASE_URL);
 
 async function fetchWithAuth(
   url: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<Response> {
   const token = getStoredToken();
   const headers: HeadersInit = {
@@ -46,7 +50,9 @@ async function fetchWithAuth(
 
 async function handleResponse<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: response.statusText }));
+    const error = await response
+      .json()
+      .catch(() => ({ message: response.statusText }));
     throw new Error(error.message || `Error: ${response.status}`);
   }
   return response.json();
@@ -93,7 +99,10 @@ export const todoApi = {
     return handleResponse<CreateTodoResponse>(response);
   },
 
-  update: async (id: number, data: UpdateTodoRequest): Promise<UpdateTodoResponse> => {
+  update: async (
+    id: number,
+    data: UpdateTodoRequest,
+  ): Promise<UpdateTodoResponse> => {
     const response = await fetchWithAuth(`/todo/${id}`, {
       method: "PATCH",
       body: JSON.stringify(data),
