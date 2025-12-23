@@ -35,7 +35,7 @@ export function Sidebar({ items, footerItems = [], showLogout = true }: SidebarP
     const active = isActive(item.href);
     const baseClasses = `w-full flex items-center gap-3 px-4 py-3 rounded-lg font-['Montserrat',sans-serif] font-medium text-sm transition-colors`;
     const activeClasses = active
-      ? "bg-white/20 text-white"
+      ? "bg-white text-[#ff6767]"
       : "text-white/90 hover:bg-white/10";
 
     const content = (
