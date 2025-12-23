@@ -13,7 +13,7 @@ import type {
   GetUserResponse,
 } from "@shared/api-types";
 
-const API_BASE_URL = import.meta.env.VITE_Task_APP_BASE_URL || "http://localhost:8080";
+const API_BASE_URL = import.meta.env.VITE_TASK_APP_BASE_URL || "http://localhost:8080";
 
 async function fetchWithAuth(
   url: string,
