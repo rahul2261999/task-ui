@@ -1,5 +1,12 @@
-import { Plus, Calendar, CheckCircle2, Circle, Trash2, Edit2, Search, Bell, User, Home, ListTodo, Settings, LogOut } from "lucide-react";
+import { Plus, Calendar, CheckCircle2, Circle, Trash2, Edit2, Search, Bell, User, Home, ListTodo, Settings, LogOut, KeyRound, UserCog } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { todoApi } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -138,10 +145,15 @@ export const Tasks = (): JSX.Element => {
         </nav>
 
         <div className="p-4 border-t border-gray-100">
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-['Montserrat',sans-serif] font-medium text-[15px] text-[#212427] hover:bg-[#fff5f5] transition-colors">
-            <Settings className="w-5 h-5" />
-            <span>Settings</span>
-          </button>
+          <Link href="/account-info">
+            <button
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-['Montserrat',sans-serif] font-medium text-[15px] text-[#212427] hover:bg-[#fff5f5] transition-colors"
+              data-testid="button-settings"
+            >
+              <Settings className="w-5 h-5" />
+              <span>Settings</span>
+            </button>
+          </Link>
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-['Montserrat',sans-serif] font-medium text-[15px] text-[#ff6767] hover:bg-[#fff5f5] transition-colors"
@@ -168,9 +180,43 @@ export const Tasks = (): JSX.Element => {
               <button className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors">
                 <Bell className="w-5 h-5 text-white" />
               </button>
-              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center">
-                <User className="w-5 h-5 text-[#ff6767]" />
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="w-10 h-10 rounded-full bg-white flex items-center justify-center hover:ring-2 hover:ring-white/50 transition-all"
+                    data-testid="button-profile-menu"
+                  >
+                    <User className="w-5 h-5 text-[#ff6767]" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem
+                    onClick={() => setLocation("/account-info")}
+                    className="font-['Montserrat',sans-serif] cursor-pointer"
+                    data-testid="menu-account-info"
+                  >
+                    <UserCog className="w-4 h-4 mr-2" />
+                    Account Info
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => setLocation("/change-password")}
+                    className="font-['Montserrat',sans-serif] cursor-pointer"
+                    data-testid="menu-change-password"
+                  >
+                    <KeyRound className="w-4 h-4 mr-2" />
+                    Change Password
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="font-['Montserrat',sans-serif] text-[#ff6767] cursor-pointer"
+                    data-testid="menu-logout"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </header>
 
