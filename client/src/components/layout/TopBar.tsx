@@ -44,18 +44,39 @@ export function TopBar({
         To-Do
       </h1>
 
-      {showSearch && (
+      {showSearch && onSearchChange && (
         <div className="flex-1 max-w-[400px] mx-8">
           <div className="relative">
             <input
               type="text"
               value={searchValue}
-              onChange={(e) => onSearchChange?.(e.target.value)}
+              onChange={(e) => onSearchChange(e.target.value)}
               placeholder={searchPlaceholder}
               className="w-full h-[40px] pl-4 pr-12 rounded-lg border border-gray-300 font-['Montserrat',sans-serif] text-sm text-[#212427] placeholder:text-gray-400 focus:outline-none focus:border-[#ff6767]"
               data-testid="input-topbar-search"
             />
-            <button className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 bg-[#ff6767] rounded-lg flex items-center justify-center">
+            <button
+              className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 bg-[#ff6767] rounded-lg flex items-center justify-center"
+              data-testid="button-search"
+            >
+              <Search className="w-4 h-4 text-white" />
+            </button>
+          </div>
+        </div>
+      )}
+      {showSearch && !onSearchChange && (
+        <div className="flex-1 max-w-[400px] mx-8">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder={searchPlaceholder}
+              className="w-full h-[40px] pl-4 pr-12 rounded-lg border border-gray-300 font-['Montserrat',sans-serif] text-sm text-[#212427] placeholder:text-gray-400 focus:outline-none focus:border-[#ff6767]"
+              data-testid="input-topbar-search"
+            />
+            <button
+              className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 bg-[#ff6767] rounded-lg flex items-center justify-center"
+              data-testid="button-search"
+            >
               <Search className="w-4 h-4 text-white" />
             </button>
           </div>
