@@ -1,68 +1,95 @@
-import { useState } from "react";
 import { Plus, Calendar, CheckCircle2, Circle, Trash2, Edit2, Search, Bell, User, Home, ListTodo, Settings, LogOut } from "lucide-react";
-import { Link } from "wouter";
-
-interface Task {
-  id: number;
-  title: string;
-  completed: boolean;
-  category: string;
-  dueDate?: string;
-}
-
-const initialTasks: Task[] = [
-  { id: 1, title: "Complete project documentation", completed: false, category: "Work", dueDate: "Today" },
-  { id: 2, title: "Review pull requests", completed: true, category: "Work", dueDate: "Today" },
-  { id: 3, title: "Team meeting at 3 PM", completed: false, category: "Work", dueDate: "Today" },
-  { id: 4, title: "Buy groceries", completed: false, category: "Personal", dueDate: "Tomorrow" },
-  { id: 5, title: "Go to the gym", completed: true, category: "Personal", dueDate: "Today" },
-];
+import { Link, useLocation } from "wouter";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { todoApi } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
+import { queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import type { Todo, TodoStatus } from "@shared/api-types";
+import { useState } from "react";
 
 export const Tasks = (): JSX.Element => {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
-  const [newTask, setNewTask] = useState("");
+  const { user, logout } = useAuth();
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
   const [selectedCategory, setSelectedCategory] = useState("All Tasks");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const categories = [
-    { name: "All Tasks", icon: ListTodo, count: tasks.length },
-    { name: "Today", icon: Calendar, count: tasks.filter(t => t.dueDate === "Today").length },
-    { name: "Work", icon: Home, count: tasks.filter(t => t.category === "Work").length },
-    { name: "Personal", icon: User, count: tasks.filter(t => t.category === "Personal").length },
-  ];
+  const { data: todosResponse, isLoading } = useQuery({
+    queryKey: ["/todo/list"],
+    queryFn: () => todoApi.list(),
+  });
 
-  const handleAddTask = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newTask.trim()) {
-      setTasks([
-        ...tasks,
-        {
-          id: Date.now(),
-          title: newTask,
-          completed: false,
-          category: "Personal",
-          dueDate: "Today",
-        },
-      ]);
-      setNewTask("");
-    }
+  const tasks = todosResponse?.data || [];
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, status }: { id: number; status: TodoStatus }) =>
+      todoApi.update(id, { status }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/todo/list"] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Failed to update task",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => todoApi.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/todo/list"] });
+      toast({
+        title: "Task deleted",
+        description: "The task has been removed.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Failed to delete task",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleLogout = () => {
+    logout();
+    setLocation("/login");
   };
 
-  const toggleTask = (id: number) => {
-    setTasks(tasks.map((task) => (task.id === id ? { ...task, completed: !task.completed } : task)));
+  const toggleTask = (task: Todo) => {
+    const newStatus: TodoStatus = task.status === "completed" ? "pending" : "completed";
+    updateMutation.mutate({ id: task.id, status: newStatus });
   };
 
   const deleteTask = (id: number) => {
-    setTasks(tasks.filter((task) => task.id !== id));
+    deleteMutation.mutate(id);
   };
 
+  const categories = [
+    { name: "All Tasks", icon: ListTodo, count: tasks.length },
+    { name: "Today", icon: Calendar, count: tasks.filter((t) => isToday(t.due_date)).length },
+    { name: "In Progress", icon: Home, count: tasks.filter((t) => t.status === "inprogress").length },
+    { name: "Completed", icon: User, count: tasks.filter((t) => t.status === "completed").length },
+  ];
+
   const filteredTasks = tasks.filter((task) => {
-    const matchesCategory = selectedCategory === "All Tasks" || task.category === selectedCategory || (selectedCategory === "Today" && task.dueDate === "Today");
+    let matchesCategory = true;
+    if (selectedCategory === "Today") {
+      matchesCategory = isToday(task.due_date);
+    } else if (selectedCategory === "In Progress") {
+      matchesCategory = task.status === "inprogress";
+    } else if (selectedCategory === "Completed") {
+      matchesCategory = task.status === "completed";
+    }
     const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
-  const completedCount = tasks.filter((t) => t.completed).length;
+  const completedCount = tasks.filter((t) => t.status === "completed").length;
   const totalCount = tasks.length;
 
   return (
@@ -74,8 +101,12 @@ export const Tasks = (): JSX.Element => {
               <User className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h2 className="font-['Montserrat',sans-serif] font-bold text-[#212427] text-lg">John Doe</h2>
-              <p className="font-['Montserrat',sans-serif] text-sm text-[#999]">john@example.com</p>
+              <h2 className="font-['Montserrat',sans-serif] font-bold text-[#212427] text-lg" data-testid="text-user-name">
+                {user?.name || "User"}
+              </h2>
+              <p className="font-['Montserrat',sans-serif] text-sm text-[#999]" data-testid="text-user-email">
+                {user?.email || ""}
+              </p>
             </div>
           </div>
         </div>
@@ -91,6 +122,7 @@ export const Tasks = (): JSX.Element => {
                       ? "bg-[#ff6767] text-white"
                       : "text-[#212427] hover:bg-[#fff5f5]"
                   }`}
+                  data-testid={`button-category-${cat.name.toLowerCase().replace(" ", "-")}`}
                 >
                   <cat.icon className="w-5 h-5" />
                   <span className="flex-1 text-left">{cat.name}</span>
@@ -108,7 +140,11 @@ export const Tasks = (): JSX.Element => {
             <Settings className="w-5 h-5" />
             <span>Settings</span>
           </button>
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-['Montserrat',sans-serif] font-medium text-[15px] text-[#ff6767] hover:bg-[#fff5f5] transition-colors">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-['Montserrat',sans-serif] font-medium text-[15px] text-[#ff6767] hover:bg-[#fff5f5] transition-colors"
+            data-testid="button-logout"
+          >
             <LogOut className="w-5 h-5" />
             <span>Logout</span>
           </button>
@@ -117,7 +153,7 @@ export const Tasks = (): JSX.Element => {
 
       <main className="flex-1 p-8">
         <div className="max-w-4xl mx-auto">
-          <header className="flex items-center justify-between mb-8">
+          <header className="flex items-center justify-between gap-4 mb-8 flex-wrap">
             <div>
               <h1 className="font-['Montserrat',sans-serif] font-bold text-white text-[32px]">
                 {selectedCategory}
@@ -144,24 +180,12 @@ export const Tasks = (): JSX.Element => {
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search tasks..."
               className="w-full h-[56px] pl-12 pr-4 rounded-xl bg-white font-['Montserrat',sans-serif] font-medium text-[16px] text-[#212427] placeholder:text-[#999] focus:outline-none focus:ring-2 focus:ring-white/50 shadow-lg"
+              data-testid="input-search"
             />
           </div>
 
           <div className="flex gap-3 mb-8">
-            <input
-              type="text"
-              value={newTask}
-              onChange={(e) => setNewTask(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleAddTask(e);
-                }
-              }}
-              placeholder="Add a new task..."
-              className="flex-1 h-[56px] px-6 rounded-xl bg-white font-['Montserrat',sans-serif] font-medium text-[16px] text-[#212427] placeholder:text-[#999] focus:outline-none focus:ring-2 focus:ring-white/50 shadow-lg"
-              data-testid="input-quick-add-task"
-            />
-            <Link href="/add-task">
+            <Link href="/add-task" className="flex-shrink-0">
               <button
                 type="button"
                 className="h-[56px] px-6 bg-[#ff9090] hover:bg-[#ff7070] rounded-xl font-['Montserrat',sans-serif] font-medium text-white flex items-center gap-2 transition-colors shadow-lg"
@@ -174,7 +198,12 @@ export const Tasks = (): JSX.Element => {
           </div>
 
           <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-            {filteredTasks.length === 0 ? (
+            {isLoading ? (
+              <div className="p-12 text-center">
+                <div className="animate-spin w-10 h-10 border-4 border-[#ff6767] border-t-transparent rounded-full mx-auto mb-4" />
+                <p className="font-['Montserrat',sans-serif] text-[#999]">Loading tasks...</p>
+              </div>
+            ) : filteredTasks.length === 0 ? (
               <div className="p-12 text-center">
                 <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-[#fff5f5] flex items-center justify-center">
                   <ListTodo className="w-10 h-10 text-[#ff9090]" />
@@ -192,12 +221,14 @@ export const Tasks = (): JSX.Element => {
                   <li
                     key={task.id}
                     className="flex items-center gap-4 p-5 hover:bg-[#fafafa] transition-colors group"
+                    data-testid={`task-item-${task.id}`}
                   >
                     <button
-                      onClick={() => toggleTask(task.id)}
+                      onClick={() => toggleTask(task)}
                       className="flex-shrink-0"
+                      data-testid={`button-toggle-${task.id}`}
                     >
-                      {task.completed ? (
+                      {task.status === "completed" ? (
                         <CheckCircle2 className="w-6 h-6 text-[#ff6767]" />
                       ) : (
                         <Circle className="w-6 h-6 text-[#ccc] hover:text-[#ff9090] transition-colors" />
@@ -206,32 +237,45 @@ export const Tasks = (): JSX.Element => {
                     <div className="flex-1 min-w-0">
                       <p
                         className={`font-['Montserrat',sans-serif] font-medium text-[16px] truncate ${
-                          task.completed ? "text-[#999] line-through" : "text-[#212427]"
+                          task.status === "completed" ? "text-[#999] line-through" : "text-[#212427]"
                         }`}
+                        data-testid={`text-task-title-${task.id}`}
                       >
                         {task.title}
                       </p>
-                      <div className="flex items-center gap-3 mt-1">
-                        <span className="font-['Montserrat',sans-serif] text-sm text-[#999]">
-                          {task.category}
+                      <div className="flex items-center gap-3 mt-1 flex-wrap">
+                        <span
+                          className={`font-['Montserrat',sans-serif] text-sm px-2 py-0.5 rounded ${
+                            task.status === "completed"
+                              ? "bg-green-100 text-green-700"
+                              : task.status === "inprogress"
+                              ? "bg-blue-100 text-blue-700"
+                              : "bg-yellow-100 text-yellow-700"
+                          }`}
+                        >
+                          {task.status}
                         </span>
-                        {task.dueDate && (
+                        {task.due_date && (
                           <>
-                            <span className="text-[#ccc]">•</span>
+                            <span className="text-[#ccc]">|</span>
                             <span className="font-['Montserrat',sans-serif] text-sm text-[#ff9090]">
-                              {task.dueDate}
+                              {formatDate(task.due_date)}
                             </span>
                           </>
                         )}
                       </div>
                     </div>
                     <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="w-9 h-9 rounded-lg hover:bg-[#fff5f5] flex items-center justify-center transition-colors">
+                      <button
+                        className="w-9 h-9 rounded-lg hover:bg-[#fff5f5] flex items-center justify-center transition-colors"
+                        data-testid={`button-edit-${task.id}`}
+                      >
                         <Edit2 className="w-4 h-4 text-[#999]" />
                       </button>
                       <button
                         onClick={() => deleteTask(task.id)}
                         className="w-9 h-9 rounded-lg hover:bg-[#fff5f5] flex items-center justify-center transition-colors"
+                        data-testid={`button-delete-${task.id}`}
                       >
                         <Trash2 className="w-4 h-4 text-[#ff6767]" />
                       </button>
@@ -242,19 +286,41 @@ export const Tasks = (): JSX.Element => {
             )}
           </div>
 
-          <div className="mt-6 flex items-center justify-between">
+          <div className="mt-6 flex items-center justify-between gap-4 flex-wrap">
             <p className="font-['Montserrat',sans-serif] text-white/80">
-              {filteredTasks.filter((t) => !t.completed).length} tasks remaining
+              {filteredTasks.filter((t) => t.status !== "completed").length} tasks remaining
             </p>
-            <button
-              onClick={() => setTasks(tasks.filter((t) => !t.completed))}
-              className="font-['Montserrat',sans-serif] font-medium text-white hover:text-white/80 transition-colors"
-            >
-              Clear completed
-            </button>
           </div>
         </div>
       </main>
     </div>
   );
 };
+
+function isToday(dateString: string | null): boolean {
+  if (!dateString) return false;
+  const date = new Date(dateString);
+  const today = new Date();
+  return (
+    date.getDate() === today.getDate() &&
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear()
+  );
+}
+
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  if (isToday(dateString)) return "Today";
+  if (
+    date.getDate() === tomorrow.getDate() &&
+    date.getMonth() === tomorrow.getMonth() &&
+    date.getFullYear() === tomorrow.getFullYear()
+  ) {
+    return "Tomorrow";
+  }
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
